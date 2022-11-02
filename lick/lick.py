@@ -3,12 +3,13 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
-from licplot import lic_internal as _lic
 from matplotlib.colors import LightSource
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.interpolate import griddata
 from skimage import exposure
 from skimage.util import random_noise
+
+import lick._vendor.vectorplot.core as _lic
 
 
 def interpol(
