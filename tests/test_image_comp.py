@@ -6,7 +6,7 @@ from lick import lick_box_plot
 
 
 @pytest.mark.mpl_image_compare()
-def test_lick_img(temp_figure_and_axis):
+def test_lick_img():
     fig, ax = plt.subplots()
     x = np.geomspace(0.1, 10, 128)
     y = np.geomspace(0.1, 5, 128)
