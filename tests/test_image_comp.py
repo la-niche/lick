@@ -1,8 +1,9 @@
-import pytest
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import pytest
 
 from lick import lick_box_plot
+
 
 @pytest.mark.mpl_image_compare()
 def test_lick_img(temp_figure_and_axis):
