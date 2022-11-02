@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
@@ -7,7 +6,7 @@ from lick import lick_box_plot
 
 @pytest.mark.mpl_image_compare()
 def test_lick_img(temp_figure_and_axis):
-	fig, ax = temp_figure_and_axis
+    fig, ax = temp_figure_and_axis
     x = np.geomspace(0.1, 10, 128)
     y = np.geomspace(0.1, 5, 128)
     XX, YY = np.meshgrid(x, y, indexing="xy")
@@ -30,6 +29,6 @@ def test_lick_img(temp_figure_and_axis):
         niter_lic=5,
         kernel_length=64,
         cmap="inferno",
-        stream_density=0.5
+        stream_density=0.5,
     )
     return fig
