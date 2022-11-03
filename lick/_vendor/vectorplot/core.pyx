@@ -12,8 +12,7 @@ cdef fused real:
     np.float32_t
 
 @cython.cdivision
-cdef inline void _advance(real* vx,
-        int* x, real* fx, int w, int h):
+cdef inline void _advance(real* vx, int* x, real* fx, int* w):
     """Move to the next pixel in the vector direction.
 
     This function updates x, y, fx, and fy in place.
@@ -24,14 +23,10 @@ cdef inline void _advance(real* vx,
       Vector x component.
     x : int
       Pixel x index. Updated in place.
-    y : int
-      Pixel y index. Updated in place.
-    fx : float
+    fx : real
       Position along x in the pixel unit square. Updated in place.
     w : int
       Number of pixels along x.
-    h : int
-      Number of pixels along y.
     """
 
     cdef real tx
@@ -63,8 +58,8 @@ cdef inline void _advance(real* vx,
             fx[1]=1
         fx[0]+=ty*vx[0]
 
-    x[0] = max(0, min(w-1, x[0]))
-    x[1] = max(0, min(h-1, x[1]))
+    x[0] = max(0, min(w[0]-1, x[0]))
+    x[1] = max(0, min(w[1]-1, x[1]))
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -120,14 +115,15 @@ def line_integral_convolution(
     cdef real[:, :] texture_v = texture
     cdef real[:, :] out_v = out
 
-    ny = u.shape[0]
-    nx = u.shape[1]
+    cdef int nx[2]
+    nx[0] = u.shape[1]
+    nx[1] = u.shape[0]
 
     kernellen = kernel.shape[0]
 
 
-    for i in range(ny):
-        for j in range(nx):
+    for i in range(nx[1]):
+        for j in range(nx[0]):
             x[0] = j
             x[1] = i
             fx[0] = 0.5
@@ -146,7 +142,7 @@ def line_integral_convolution(
                     ui[1] = -ui[1]
                 last_ui = ui[0]
                 last_vi = ui[1]
-                _advance(ui, x, fx, nx, ny)
+                _advance(ui, x, fx, nx)
                 k+=1
                 out_v[i,j] += kernel[k]*texture_v[x[1],x[0]]
 
@@ -167,6 +163,6 @@ def line_integral_convolution(
                     ui[1] = -ui[1]
                 last_ui = ui[0]
                 last_vi = ui[1]
-                _advance(ui, x, fx, nx, ny)
+                _advance(ui, x, fx, nx)
                 k-=1
                 out_v[i,j] += kernel[k]*texture_v[x[1],x[0]]
