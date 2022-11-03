@@ -44,17 +44,11 @@ cdef inline void _advance(real* vx, int* x, real* fx, int* w):
 
     comp = tx<ty
     if comp:    # We reached the next pixel along x first.
-        if vx[0]>=0:
-            x[0]+=1
-        else:
-            x[0]-=1
+        x[0] += 1 - 2*signbit(vx[0])
         fx[0] = signbit(vx[0])
         fx[1]+=tx*vx[1]
     else:        # We reached the next pixel along y first.
-        if vx[1]>=0:
-            x[1]+=1
-        else:
-            x[1]-=1
+        x[1] += 1 - 2*signbit(vx[1])
         fx[1] = signbit(vx[1])
         fx[0]+=ty*vx[0]
 
