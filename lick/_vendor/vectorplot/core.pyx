@@ -29,9 +29,7 @@ cdef inline void _advance(real* vx, int* x, real* fx, int* w):
       Number of pixels along x.
     """
 
-    cdef real tx
-    cdef real ty
-    cdef int comp
+    cdef real tx[2]
 
     # Think of tx (ty) as the time it takes to reach the next pixel
     # along x (y).
@@ -39,18 +37,17 @@ cdef inline void _advance(real* vx, int* x, real* fx, int* w):
     if vx[0]==0 and vx[1]==0:
         return
 
-    tx = (signbit(-vx[0])-fx[0])/vx[0]
-    ty = (signbit(-vx[1])-fx[1])/vx[1]
+    tx[0] = (signbit(-vx[0])-fx[0])/vx[0]
+    tx[1] = (signbit(-vx[1])-fx[1])/vx[1]
 
-    comp = tx<ty
-    if comp:    # We reached the next pixel along x first.
+    if tx[0]<tx[1]:    # We reached the next pixel along x first.
         x[0] += 1 - 2*signbit(vx[0])
         fx[0] = signbit(vx[0])
-        fx[1]+=tx*vx[1]
+        fx[1]+= tx[0]*vx[1]
     else:        # We reached the next pixel along y first.
         x[1] += 1 - 2*signbit(vx[1])
         fx[1] = signbit(vx[1])
-        fx[0]+=ty*vx[0]
+        fx[0] += tx[1]*vx[0]
 
     x[0] = max(0, min(w[0]-1, x[0]))
     x[1] = max(0, min(w[1]-1, x[1]))
