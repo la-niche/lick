@@ -13,7 +13,7 @@ cdef fused real:
 
 @cython.cdivision
 cdef inline void _advance(real* vx,
-        int* x, int* y, real* fx, int w, int h):
+        int* x, real* fx, int w, int h):
     """Move to the next pixel in the vector direction.
 
     This function updates x, y, fx, and fy in place.
@@ -56,15 +56,15 @@ cdef inline void _advance(real* vx,
         fx[1]+=tx*vx[1]
     else:        # We reached the next pixel along y first.
         if vx[1]>=0:
-            y[0]+=1
+            x[1]+=1
             fx[1]=0
         else:
-            y[0]-=1
+            x[1]-=1
             fx[1]=1
         fx[0]+=ty*vx[0]
 
     x[0] = max(0, min(w-1, x[0]))
-    y[0] = max(0, min(h-1, y[0]))
+    x[1] = max(0, min(h-1, x[1]))
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -107,11 +107,12 @@ def line_integral_convolution(
 
     """
 
-    cdef int i,j,k,x,y
+    cdef int i,j,k
     cdef int kernellen
     cdef real last_ui, last_vi
     cdef int pol = polarization
 
+    cdef int x[2]
     cdef real ui[2]
     cdef real fx[2]
     cdef real[:, :] u_v = u
@@ -127,31 +128,30 @@ def line_integral_convolution(
 
     for i in range(ny):
         for j in range(nx):
-            x = j
-            y = i
+            x[0] = j
+            x[1] = i
             fx[0] = 0.5
             fx[1] = 0.5
             last_ui = 0
             last_vi = 0
 
             k = kernellen//2
-            out_v[i,j] += kernel[k]*texture_v[y,x]
+            out_v[i,j] += kernel[k]*texture_v[x[1],x[0]]
 
             while k<kernellen-1:
-                ui[0] = u_v[y,x]
-                ui[1] = v_v[y,x]
+                ui[0] = u_v[x[1],x[0]]
+                ui[1] = v_v[x[1],x[0]]
                 if pol and (ui[0]*last_ui+ui[1]*last_vi)<0:
                     ui[0] = -ui[0]
                     ui[1] = -ui[1]
                 last_ui = ui[0]
                 last_vi = ui[1]
-                _advance(ui,
-                        &x, &y, fx, nx, ny)
+                _advance(ui, x, fx, nx, ny)
                 k+=1
-                out_v[i,j] += kernel[k]*texture_v[y,x]
+                out_v[i,j] += kernel[k]*texture_v[x[1],x[0]]
 
-            x = j
-            y = i
+            x[0] = j
+            x[1] = i
             fx[0] = 0.5
             fx[1] = 0.5
             last_ui = 0
@@ -160,14 +160,13 @@ def line_integral_convolution(
             k = kernellen//2
 
             while k>0:
-                ui[0] = -u_v[y,x]
-                ui[1] = -v_v[y,x]
+                ui[0] = -u_v[x[1],x[0]]
+                ui[1] = -v_v[x[1],x[0]]
                 if pol and (ui[0]*last_ui+ui[1]*last_vi)<0:
                     ui[0] = -ui[0]
                     ui[1] = -ui[1]
                 last_ui = ui[0]
                 last_vi = ui[1]
-                _advance(ui,
-                        &x, &y, fx, nx, ny)
+                _advance(ui, x, fx, nx, ny)
                 k-=1
-                out_v[i,j] += kernel[k]*texture_v[y,x]
+                out_v[i,j] += kernel[k]*texture_v[x[1],x[0]]
