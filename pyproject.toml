@@ -3,6 +3,8 @@ requires = [
     "setuptools>=61.2",
     "Cython>=3.0",
     "numpy>=1.25, <2.0",
+    "wheel>=0.41.2",
+    "tomli; python_version < '3.11'",
 ]
 build-backend = "setuptools.build_meta"
 

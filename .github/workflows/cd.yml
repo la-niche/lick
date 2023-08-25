@@ -61,11 +61,26 @@ jobs:
         name: sdist
         path: dist/*.tar.gz
 
+  audit_abi3_wheels:
+    name: Audit ABI3 wheels
+    runs-on: ubuntu-latest
+    needs:
+    - build_wheels
+
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: python-package-distributions
+        path: dist/
+    - uses: actions/setup-python@v3
+    - run: pipx run abi3audit dist/*abi3*.whl
+
   deploy:
     name: Publish to PyPI
     needs:
     - build_wheels
     - build_sdist
+    - audit_abi3_wheels
 
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
