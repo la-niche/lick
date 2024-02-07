@@ -16,6 +16,7 @@ def interpol(
     field: np.ndarray,
     *,
     method: str = "nearest",
+    method_bck: str = "nearest",
     xmin: Optional[float] = None,
     xmax: Optional[float] = None,
     ymin: Optional[float] = None,
@@ -55,7 +56,7 @@ def interpol(
 
     gv1 = griddata((px, py), pv1, (xi, yi), method=method)
     gv2 = griddata((px, py), pv2, (xi, yi), method=method)
-    gfield = griddata((px, py), pfield, (xi, yi), method="nearest")
+    gfield = griddata((px, py), pfield, (xi, yi), method=method_bck)
 
     return (x, y, gv1, gv2, gfield)
 
@@ -121,6 +122,7 @@ def lick_box(
     *,
     size_interpolated: int = 800,
     method: str = "nearest",
+    method_bck: str = "nearest",
     xmin: Optional[float] = None,
     xmax: Optional[float] = None,
     ymin: Optional[float] = None,
@@ -147,6 +149,7 @@ def lick_box(
         v2,
         field,
         method=method,
+        method_bck=method_bck,
         xmin=xmin,
         xmax=xmax,
         ymin=ymin,
@@ -177,6 +180,7 @@ def lick_box_plot(
     vmax: Optional[float] = None,
     size_interpolated: int = 800,
     method: str = "nearest",
+    method_bck: str = "nearest",
     xmin: Optional[float] = None,
     xmax: Optional[float] = None,
     ymin: Optional[float] = None,
@@ -203,6 +207,7 @@ def lick_box_plot(
         field,
         size_interpolated=size_interpolated,
         method=method,
+        method_bck=method_bck,
         xmin=xmin,
         xmax=xmax,
         ymin=ymin,
