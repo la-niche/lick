@@ -61,7 +61,6 @@ known-first-party = ["lick"]
 
 [tool.mypy]
 python_version = "3.9"
-ignore_missing_imports = true # matplotlib and skimage don't have stubs yet
 show_error_codes = true
 pretty = true
 warn_return_any = true
