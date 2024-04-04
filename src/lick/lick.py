@@ -1,9 +1,17 @@
 #!/usr/bin/env python
-from typing import Optional
+import warnings
+from importlib.util import find_spec
+from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 
 import lick._vendor.vectorplot.core as _lic
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
+    from matplotlib.figure import Figure
+
+HAS_MPL = find_spec("matplotlib") is not None
 
 
 def _equalize_hist(image):
@@ -125,6 +133,18 @@ def lick(
     image /= image.max()
 
     if light_source:
+        warnings.warn(
+            "The light_source argument is deprecated and will "
+            "be removed in a future version. "
+            "Please use matplotlib.colors.LightSource directly",
+            category=DeprecationWarning,
+            stacklevel=2,
+        )
+        if not HAS_MPL:
+            raise RuntimeError(
+                "light_source=True requires matplotlib, which is missing"
+            )
+
         from matplotlib.colors import LightSource
 
         # Illuminate the scene from the northwest
@@ -189,8 +209,8 @@ def lick_box(
 
 
 def lick_box_plot(
-    fig,
-    ax,
+    fig: "Figure",
+    ax: "Axes",
     x: np.ndarray,
     y: np.ndarray,
     v1: np.ndarray,
@@ -291,6 +311,9 @@ def lick_box_plot(
 
 
 if __name__ == "__main__":
+    if not HAS_MPL:
+        raise RuntimeError(f"running {__file__} as a script requires matplotlib")
+
     import matplotlib.pyplot as plt
 
     cmap = "inferno"

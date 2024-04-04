@@ -21,7 +21,6 @@ classifiers = [
 ]
 requires-python = ">=3.9"
 dependencies = [
-    "matplotlib>=3.4.0",
     # keep in sync with NPY_TARGET_VERSION (setup.py)
     "numpy>=1.19.3, <3",
     "scipy>=1.5.4",
