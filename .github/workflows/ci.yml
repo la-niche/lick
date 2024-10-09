@@ -28,11 +28,12 @@ jobs:
         - '3.10'
         - '3.11'
         - '3.12'
+        - '3.13'
         include:
         - os: macos-latest
-          python-version: '3.12'
+          python-version: '3.13'
         - os: windows-latest
-          python-version: '3.12'
+          python-version: '3.13'
         - os: ubuntu-20.04
           python-version: '3.9'
           install-args: --resolution=lowest-direct
@@ -75,7 +76,7 @@ jobs:
 
     - name: Build
       run: |
-        uv venv --python 3.12
+        uv venv --python 3.13
         uv sync
         uv pip install --requirement requirements/tests.txt
 
