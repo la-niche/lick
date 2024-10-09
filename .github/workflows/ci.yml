@@ -67,8 +67,7 @@ jobs:
     - name: Build
       run: |
         uv venv --python 3.13
-        uv sync --verbose
-        uv pip install --verbose --requirement requirements/tests.txt
+        uv pip install --verbose . -r requirements/tests.txt
 
     - run: uv pip list
 
