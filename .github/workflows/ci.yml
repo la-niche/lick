@@ -51,15 +51,15 @@ jobs:
 
     - name: Build
       run: |
-        uv venv --python ${{ matrix.python-version }}
-        uv pip install . --no-deps
-        uv pip compile pyproject.toml --no-build ${{ matrix.install-args }} | uv pip install -r -
-        uv pip install --requirement requirements/tests.txt
+        uv venv --verbose --python ${{ matrix.python-version }}
+        uv pip install --verbose . --no-deps
+        uv pip compile --verbose pyproject.toml --no-build ${{ matrix.install-args }} | uv pip install -r -
+        uv pip install --verbose --requirement requirements/tests.txt
 
     - run: uv pip list
 
     - name: Test
-      run: uv run pytest --color=yes -ra
+      run: uv --verbose run pytest --color=yes -ra
 
   image-tests:
     name: Image tests
@@ -77,14 +77,14 @@ jobs:
     - name: Build
       run: |
         uv venv --python 3.13
-        uv sync
-        uv pip install --requirement requirements/tests.txt
+        uv sync --verbose
+        uv pip install --verbose --requirement requirements/tests.txt
 
     - run: uv pip list
 
     - name: Run Image Tests
       run: |
-        uv run pytest --color=yes --mpl -m mpl_image_compare \
+        uv run --verbose pytest --color=yes --mpl -m mpl_image_compare \
                --mpl-generate-summary=html \
                --mpl-results-path=lick_pytest_mpl_results \
                --mpl-baseline-path=tests/pytest_mpl_baseline
