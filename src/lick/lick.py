@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import warnings
-from concurrent.futures import ThreadPoolExecutor
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -64,7 +63,7 @@ def interpol(
     ymax: float | None = None,
     size_interpolated: int = 800,
 ):
-    from scipy.interpolate import griddata
+    from scipy.interpolate import interpn
 
     if xmin is None:
         xmin = xx.min()
@@ -88,26 +87,13 @@ def interpol(
     xi, yi = np.meshgrid(x, y)
 
     # then, interpolate your data onto this grid:
-
-    px = xx.ravel()
-    py = yy.ravel()
-    pv1 = v1.ravel()
-    pv2 = v2.ravel()
-    pfield = field.ravel()
-
     def closure(arr, method):
-        return griddata((px, py), arr, (xi, yi), method=method)
+        return interpn((xx[0], yy[:, 0]), arr, (xi, yi), method=method)
 
-    with ThreadPoolExecutor(3) as pool:
-        futures = [
-            pool.submit(closure, arr, meth)
-            for (arr, meth) in [
-                (pv1, method),
-                (pv2, method),
-                (pfield, method_background),
-            ]
-        ]
-        gv1, gv2, gfield = [f.result() for f in futures]
+    gv1 = closure(v1, method)
+    gv2 = closure(v2, method)
+    gfield = closure(field, method_background)
+
     return (x, y, gv1, gv2, gfield)
 
 
