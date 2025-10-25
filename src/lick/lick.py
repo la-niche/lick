@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import warnings
 from concurrent.futures import ThreadPoolExecutor
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, TypeAlias
 
 import numpy as np
 import rlic
@@ -49,6 +49,9 @@ def _equalize_hist(image):
     return out.astype(image.dtype, copy=False)
 
 
+Method: TypeAlias = Literal["nearest", "linear", "cubic"]
+
+
 def interpol(
     xx,
     yy,
@@ -56,15 +59,15 @@ def interpol(
     v2: np.ndarray,
     field: np.ndarray,
     *,
-    method: str = "nearest",
-    method_background: str = "nearest",
+    method: Method = "nearest",
+    method_background: Method = "nearest",
     xmin: float | None = None,
     xmax: float | None = None,
     ymin: float | None = None,
     ymax: float | None = None,
     size_interpolated: int = 800,
 ):
-    from scipy.interpolate import griddata
+    from interpn import interpn
 
     if xmin is None:
         xmin = xx.min()
@@ -85,26 +88,27 @@ def interpol(
     x = np.linspace(xmin, xmax, nxi)
     y = np.linspace(ymin, ymax, nyi)
 
-    xi, yi = np.meshgrid(x, y)
-
-    # then, interpolate your data onto this grid:
-
-    px = xx.ravel()
-    py = yy.ravel()
-    pv1 = v1.ravel()
-    pv2 = v2.ravel()
-    pfield = field.ravel()
+    xi, yi = np.meshgrid(x, y, indexing="ij")
 
     def closure(arr, method):
-        return griddata((px, py), arr, (xi, yi), method=method)
+        return (
+            interpn(
+                obs=[xi.flatten(), yi.flatten()],
+                grids=[xx[0, :], yy[:, 0]],
+                vals=arr.flatten(),
+                method=method,
+            )
+            .reshape(xi.shape)
+            .T
+        )
 
     with ThreadPoolExecutor(3) as pool:
         futures = [
             pool.submit(closure, arr, meth)
             for (arr, meth) in [
-                (pv1, method),
-                (pv2, method),
-                (pfield, method_background),
+                (v1, method),
+                (v2, method),
+                (field, method_background),
             ]
         ]
         gv1, gv2, gfield = [f.result() for f in futures]
