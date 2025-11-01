@@ -26,10 +26,10 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
+    "interpn>=0.7.0",
     "matplotlib>=3.5.0",
     "numpy>=1.21.2, <3",
     "rlic>=0.2.1",
-    "scipy>=1.7.2",
 ]
 
 [project.readme]
