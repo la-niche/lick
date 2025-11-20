@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import warnings
-from typing import TYPE_CHECKING, Literal, TypeAlias
+from typing import TYPE_CHECKING, Literal, TypeAlias, TypeVar
 
 import numpy as np
 import rlic
@@ -50,6 +50,11 @@ def _equalize_hist(image):
 
 
 Method: TypeAlias = Literal["nearest", "linear", "cubic"]
+
+FloatT = TypeVar("FloatT", np.float32, np.float64)
+FArray1D = np.ndarray[tuple[int], np.dtype[FloatT]]
+FArray2D = np.ndarray[tuple[int, int], np.dtype[FloatT]]
+FArrayND = np.ndarray[tuple[int, ...], np.dtype[FloatT]]
 
 
 def interpol(
@@ -104,6 +109,53 @@ def interpol(
     return (x, y, gv1, gv2, gfield)
 
 
+def _interpol_v2(
+    xx: FArray1D,
+    yy: FArray1D,
+    v1: FArray2D,
+    v2: FArray2D,
+    field: FArray2D,
+    *,
+    method: Method = "nearest",
+    method_background: Method = "nearest",
+    xmin: float | None = None,
+    xmax: float | None = None,
+    ymin: float | None = None,
+    ymax: float | None = None,
+    size_interpolated: int = 800,
+):
+    if xmin is None:
+        xmin = xx.min()
+    if xmax is None:
+        xmax = xx.max()
+    if ymin is None:
+        ymin = yy.min()
+    if ymax is None:
+        ymax = yy.max()
+
+    # evenly spaced grid (same spacing in x and y directions)
+    nyi = size_interpolated
+    nxi = int((xmax - xmin) / (ymax - ymin) * nyi)
+    if nxi < nyi:
+        nxi = size_interpolated
+        nyi = int((ymax - ymin) / (xmax - xmin) * nxi)
+
+    gv1, gv2, gfield = [
+        interpn(
+            obs=np.meshgrid(xx, yy, indexing="xy"),
+            grids=[xx, yy],
+            vals=arr,
+            method=meth,
+        )
+        for (arr, meth) in [
+            (v1, method),
+            (v2, method),
+            (field, method_background),
+        ]
+    ]
+    return (gv1, gv2, gfield)
+
+
 def lick(
     v1: np.ndarray,
     v2: np.ndarray,
@@ -136,11 +188,11 @@ def lick(
 
 
 def lick_box(
-    x: np.ndarray,
-    y: np.ndarray,
-    v1: np.ndarray,
-    v2: np.ndarray,
-    field: np.ndarray,
+    x: FArrayND,
+    y: FArrayND,
+    v1: FArray2D,
+    v2: FArray2D,
+    field: FArray2D,
     *,
     size_interpolated: int = 800,
     method: Method = "nearest",
@@ -154,17 +206,18 @@ def lick_box(
     light_source: bool = True,
 ):
     if x.ndim == y.ndim == 2:
+        xx = x[:, 0]
+        yy = y[0, :]
+    elif x.ndim == y.ndim == 1:
         yy = y
         xx = x
-    elif x.ndim == y.ndim == 1:
-        yy, xx = np.meshgrid(y, x)
     else:
         raise ValueError(
             f"Received 'x' with shape {x.shape}"
             f"and 'y' with shape {y.shape}. "
             "Expected them to be both 1D or 2D arrays with identical shapes"
         )
-    xi, yi, v1i, v2i, fieldi = interpol(
+    v1i, v2i, fieldi = _interpol_v2(
         xx,
         yy,
         v1,
@@ -178,7 +231,12 @@ def lick_box(
         ymax=ymax,
         size_interpolated=size_interpolated,
     )
-    Xi, Yi = np.meshgrid(xi, yi)
+    if x.ndim == y.ndim == 2:
+        Xi = x
+        Yi = y
+    else:
+        Xi, Yi = np.meshgrid(x, y)
+
     licv = lick(
         v1i,
         v2i,
@@ -192,11 +250,11 @@ def lick_box(
 def lick_box_plot(
     fig: "Figure",
     ax: "Axes",
-    x: np.ndarray,
-    y: np.ndarray,
-    v1: np.ndarray,
-    v2: np.ndarray,
-    field: np.ndarray,
+    x: FArrayND,
+    y: FArrayND,
+    v1: FArray2D,
+    v2: FArray2D,
+    field: FArray2D,
     *,
     vmin: float | None = None,
     vmax: float | None = None,
