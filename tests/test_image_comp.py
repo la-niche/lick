@@ -10,7 +10,7 @@ def test_lick_img():
     fig, ax = plt.subplots()
     x = np.geomspace(0.1, 10, 128)
     y = np.geomspace(0.1, 5, 128)
-    XX, YY = np.meshgrid(x, y, indexing="xy")
+    XX, YY = np.meshgrid(x, y, indexing="ij")
     V1 = np.cos(XX)
     V2 = np.sin(YY)
     field = V1**2 + V2**2
