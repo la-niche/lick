@@ -72,7 +72,7 @@ def test_lick_img(inputs):
     fig, ax = plt.subplots()
     x = inputs.x
     y = inputs.y
-    xg, yg = np.meshgrid(x, y, indexing="ij")
+    xg, yg = np.meshgrid(x, y, indexing="xy")
     vx = inputs.vx(xg, yg)
     vy = inputs.vy(xg, yg)
     field = inputs.field(xg, yg, vx, vy)

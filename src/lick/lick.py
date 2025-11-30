@@ -89,13 +89,13 @@ def interpol(
     y = np.linspace(ymin, ymax, nyi)
 
     if np.ptp(xx[:, 0]) == 0.0:
-        # external indexing='xy'
+        external_indexing = "xy"
         grids = [xx[0, :], yy[:, 0]]
     else:
-        # external indexing='ij'
+        external_indexing = "ij"
         grids = [xx[:, 0], yy[0, :]]
 
-    xi, yi = np.meshgrid(x, y, indexing="xy")
+    xi, yi = np.meshgrid(x, y, indexing=external_indexing)
 
     gv1, gv2, gfield = [
         interpn(
