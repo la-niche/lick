@@ -79,8 +79,8 @@ def test_lick_img(inputs):
     lick_box_plot(
         fig,
         ax,
-        xg,
-        yg,
+        x,
+        y,
         vx,
         vy,
         field,

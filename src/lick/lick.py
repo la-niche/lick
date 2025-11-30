@@ -6,7 +6,7 @@ import numpy as np
 import rlic
 from interpn import interpn
 
-from lick._typing import FArray2D, FArrayND
+from lick._typing import FArray1D, FArray2D, FArrayND
 
 if TYPE_CHECKING:
     from matplotlib.axes import Axes
@@ -113,6 +113,53 @@ def interpol(
     return (x, y, gv1, gv2, gfield)
 
 
+def _interpol_v2(
+    xx: FArray1D,
+    yy: FArray1D,
+    v1: FArray2D,
+    v2: FArray2D,
+    field: FArray2D,
+    *,
+    method: Method = "nearest",
+    method_background: Method = "nearest",
+    xmin: float | None = None,
+    xmax: float | None = None,
+    ymin: float | None = None,
+    ymax: float | None = None,
+    size_interpolated: int = 800,
+):
+    if xmin is None:
+        xmin = xx.min()
+    if xmax is None:
+        xmax = xx.max()
+    if ymin is None:
+        ymin = yy.min()
+    if ymax is None:
+        ymax = yy.max()
+
+    # evenly spaced grid (same spacing in x and y directions)
+    nyi = size_interpolated
+    nxi = int((xmax - xmin) / (ymax - ymin) * nyi)
+    if nxi < nyi:
+        nxi = size_interpolated
+        nyi = int((ymax - ymin) / (xmax - xmin) * nxi)
+
+    gv1, gv2, gfield = [
+        interpn(
+            obs=np.meshgrid(xx, yy, indexing="xy"),
+            grids=[xx, yy],
+            vals=arr,
+            method=meth,
+        )
+        for (arr, meth) in [
+            (v1, method),
+            (v2, method),
+            (field, method_background),
+        ]
+    ]
+    return (gv1, gv2, gfield)
+
+
 def lick(
     v1: np.ndarray,
     v2: np.ndarray,
@@ -162,20 +209,21 @@ def lick_box(
     kernel_length: int = 101,
     light_source: bool = True,
 ):
-    yy: FArray2D
-    xx: FArray2D
+    yy: FArray1D
+    xx: FArray1D
     if x.ndim == y.ndim == 2:
-        yy = cast(FArray2D, y)
-        xx = cast(FArray2D, x)
+        xx = x[:, 0]
+        yy = y[0, :]
     elif x.ndim == y.ndim == 1:
-        yy, xx = np.meshgrid(y, x)
+        yy = cast(FArray1D, y)
+        xx = cast(FArray1D, x)
     else:
         raise ValueError(
             f"Received 'x' with shape {x.shape}"
             f"and 'y' with shape {y.shape}. "
             "Expected them to be both 1D or 2D arrays with identical shapes"
         )
-    xi, yi, v1i, v2i, fieldi = interpol(
+    v1i, v2i, fieldi = _interpol_v2(
         xx,
         yy,
         v1,
@@ -189,7 +237,12 @@ def lick_box(
         ymax=ymax,
         size_interpolated=size_interpolated,
     )
-    Xi, Yi = np.meshgrid(xi, yi)
+    if x.ndim == y.ndim == 2:
+        Xi = x
+        Yi = y
+    else:
+        Xi, Yi = np.meshgrid(x, y)
+
     licv = lick(
         v1i,
         v2i,
