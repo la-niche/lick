@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import warnings
-from concurrent.futures import ThreadPoolExecutor
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -96,18 +95,16 @@ def interpol(
     pfield = field.ravel()
 
     def closure(arr, method):
-        return griddata((px, py), arr, (xi, yi), method=method)
+        return
 
-    with ThreadPoolExecutor(3) as pool:
-        futures = [
-            pool.submit(closure, arr, meth)
-            for (arr, meth) in [
-                (pv1, method),
-                (pv2, method),
-                (pfield, method_background),
-            ]
+    gv1, gv2, gfield = [
+        griddata((px, py), arr, (xi, yi), method=meth)
+        for (arr, meth) in [
+            (pv1, method),
+            (pv2, method),
+            (pfield, method_background),
         ]
-        gv1, gv2, gfield = [f.result() for f in futures]
+    ]
     return (x, y, gv1, gv2, gfield)
 
 
