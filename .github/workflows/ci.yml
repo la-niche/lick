@@ -50,7 +50,7 @@ jobs:
 
     - name: Test
       shell: bash
-      run: uv run --no-sync pytest --color=yes -ra
+      run: uv run --no-sync pytest --color=yes -ra --maxfail=10
 
   image-tests:
     name: Image tests

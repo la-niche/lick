@@ -483,7 +483,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 test = [
-    { name = "pytest", specifier = ">=7.0.0" },
+    { name = "pytest", specifier = ">=9.0.0" },
     { name = "pytest-mpl", specifier = ">=0.16.1" },
 ]
 typecheck = [

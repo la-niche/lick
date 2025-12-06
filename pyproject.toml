@@ -80,7 +80,7 @@ filterwarnings = [
 
 [dependency-groups]
 test = [
-    "pytest>=7.0.0",
+    "pytest>=9.0.0",
     "pytest-mpl>=0.16.1",
 ]
 typecheck = [

@@ -81,8 +81,8 @@ def interpol(
         nxi = size_interpolated
         nyi = int((ymax - ymin) / (xmax - xmin) * nxi)
 
-    x = np.linspace(xmin, xmax, nxi)
-    y = np.linspace(ymin, ymax, nyi)
+    x = np.linspace(np.float64(xmin), np.float64(xmax), nxi)
+    y = np.linspace(np.float64(ymin), np.float64(ymax), nyi)
 
     xi, yi = np.meshgrid(x, y)
 
@@ -94,8 +94,10 @@ def interpol(
     pv2 = v2.ravel()
     pfield = field.ravel()
 
+    float_size = min(arr.dtype.itemsize for arr in (v1, v2, field))
+    out_dtype = np.dtype(f"f{float_size}")
     gv1, gv2, gfield = [
-        griddata((px, py), arr, (xi, yi), method=meth)
+        griddata((px, py), arr, (xi, yi), method=meth).astype(out_dtype)
         for (arr, meth) in [
             (pv1, method),
             (pv2, method),
