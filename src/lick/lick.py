@@ -94,9 +94,6 @@ def interpol(
     pv2 = v2.ravel()
     pfield = field.ravel()
 
-    def closure(arr, method):
-        return
-
     gv1, gv2, gfield = [
         griddata((px, py), arr, (xi, yi), method=meth)
         for (arr, meth) in [
