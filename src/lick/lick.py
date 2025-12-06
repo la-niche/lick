@@ -92,14 +92,14 @@ def interpol(
     out_dtype = np.dtype(f"f{float_size}")
 
     if np.ptp(xx[:, 0]) == 0.0:
-        # external indexing='xy'
+        external_indexing = "xy"
         grids = [xx[0, :], yy[:, 0]]
     else:
-        # external indexing='ij'
+        external_indexing = "ij"
         grids = [xx[:, 0], yy[0, :]]
     grids = [_.astype(out_dtype) for _ in grids]
 
-    xi, yi = np.meshgrid(x, y, indexing="xy")
+    xi, yi = np.meshgrid(x, y, indexing=external_indexing)
 
     obs = [_.astype(out_dtype) for _ in (xi, yi)]
     gv1, gv2, gfield = [
