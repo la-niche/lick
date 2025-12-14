@@ -1,4 +1,5 @@
 import re
+from functools import partial
 from itertools import permutations
 
 import numpy as np
@@ -340,19 +341,40 @@ def test_decreasing_coordinates(subtests):
     ref = interpol(xx0, yy0, field, v1, v2, size_interpolated=10)
 
     xx1, yy1 = np.meshgrid(xv[::-1], yv)
-    new_res = interpol(xx1, yy1, field, v1, v2, size_interpolated=10)
+    op1 = rop1 = partial(np.flip, axis=0)
+    new_res = interpol(xx1, yy1, op1(field), op1(v1), op1(v2), size_interpolated=10)
     for arr, ref_arr in zip(new_res, ref, strict=True):
         with subtests.test(flipped="x"):
-            npt.assert_array_equal(arr, ref_arr)
+            if ref_arr.ndim == 2:
+                comp = rop1(arr)
+            else:
+                comp = arr
+            npt.assert_array_equal(comp, ref_arr)
 
     xx2, yy2 = np.meshgrid(xv, yv[::-1])
-    new_res = interpol(xx2, yy2, field, v1, v2, size_interpolated=10)
+    op2 = rop2 = partial(np.flip, axis=1)
+    new_res = interpol(xx2, yy2, op2(field), op2(v1), op2(v2), size_interpolated=10)
     for arr, ref_arr in zip(new_res, ref, strict=True):
         with subtests.test(flipped="x"):
-            npt.assert_array_equal(arr, ref_arr)
+            if ref_arr.ndim == 2:
+                comp = rop2(arr)
+            else:
+                comp = arr
+            npt.assert_array_equal(comp, ref_arr)
 
     xx3, yy3 = np.meshgrid(xv[::-1], yv[::-1])
-    new_res = interpol(xx3, yy3, field, v1, v2, size_interpolated=10)
+
+    def op3(a):
+        return np.flip(np.flip(a, 0), 1)
+
+    def rop3(a):
+        return np.flip(np.flip(a, 1), 0)
+
+    new_res = interpol(xx3, yy3, op3(field), op3(v1), op3(v2), size_interpolated=10)
     for arr, ref_arr in zip(new_res, ref, strict=True):
         with subtests.test(flipped="xy"):
+            if ref_arr.ndim == 2:
+                comp = rop3(arr)
+            else:
+                comp = arr
             npt.assert_array_equal(arr, ref_arr)
