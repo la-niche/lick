@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, cast
 import numpy as np
 import rlic
 
-from lick._interpolation import Grid, Interpolator, Interval, Mesh, Method
+from lick._interpolation import Grid, Interpolator, Interval, Mesh, Method, Monotonic
 from lick._typing import F, FArray1D, FArray2D, FArrayND
 
 if TYPE_CHECKING:
@@ -68,18 +68,18 @@ def interpol(
         raise TypeError(f"Received inputs with mixed datatypes ({all_dtypes})")
 
     if np.ptp(xx[:, 0]) == 0.0:
-        # input indexing = "xy"
+        input_indexing = "xy"
         x = xx[0, :]
         y = yy[:, 0]
-
-        # https://github.com/la-niche/lick/issues/246
-        v1, v2, field = [a.T for a in (v1, v2, field)]
     else:
-        # input indexing = "ij"
+        input_indexing = "ij"
         x = xx[:, 0]
         y = yy[0, :]
 
-    inputs_grid = Grid.from_unsanitized_arrays(x=x, y=y)
+    x_mono = Monotonic(x)
+    y_mono = Monotonic(y)
+
+    inputs_grid = Grid(x=x_mono.as_increasing_array(), y=y_mono.as_increasing_array())
     target_grid = Grid.from_intervals(
         x=Interval(
             min=float(xx.min()),
@@ -93,9 +93,30 @@ def interpol(
         dtype=cast(F, xx.dtype),
     )
 
-    interpolate = Interpolator(
+    interpolator = Interpolator(
         grid=inputs_grid, target_mesh=Mesh.from_grid(target_grid, indexing="xy")
     )
+
+    def interpolate(vals: FArray2D[F], /, *, method: Method) -> FArray2D[F]:
+        nonlocal xx, yy
+        if x_mono.is_decreasing():
+            vals = np.flip(vals, axis=0)
+        if y_mono.is_decreasing():
+            vals = np.flip(vals, axis=1)
+        if input_indexing == "xy":
+            # https://github.com/la-niche/lick/issues/246
+            vals = vals.T
+
+        ret = interpolator(vals, method=method)
+
+        if input_indexing == "xy":
+            ret = ret.T
+        if y_mono.is_decreasing():
+            ret = np.flip(ret, axis=1)
+        if x_mono.is_decreasing():
+            ret = np.flip(ret, axis=0)
+
+        return ret
 
     return (
         target_grid.x,
