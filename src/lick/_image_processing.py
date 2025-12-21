@@ -77,19 +77,23 @@ class HistogramEqualizer:
 
         """
         import numpy as np
+        from interpn import interpn
 
-        hist, bin_edges = np.histogram(image.ravel(), bins=self.nbins)
-        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2.0
+        shape = image.shape
+        flat_image = image.ravel()
 
-        cdf = hist.cumsum()
-        cdf = cdf / float(cdf[-1])
+        hist, bin_edges = np.histogram(flat_image, bins=self.nbins)
+        bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
 
-        cdf = cdf.astype(image.dtype, copy=False)
-        out = np.interp(image.flat, bin_centers, cdf)
-        out = out.reshape(image.shape)
-        # Unfortunately, np.interp currently always promotes to float64, so we
-        # have to cast back to single precision when float32 output is desired
-        return out.astype(image.dtype, copy=False)  # type: ignore[no-any-return]
+        cdf = hist.cumsum(dtype=image.dtype)
+        cdf /= cdf[-1]  # fast normalization
+
+        return interpn(
+            grids=[bin_centers],
+            obs=[flat_image],
+            vals=cdf,
+            method="linear",
+        ).reshape(shape)  # type: ignore[return-value]
 
 
 class LayeringMode(Enum):
