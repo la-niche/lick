@@ -1,6 +1,7 @@
 __all__ = [
     "get_grid_or_mesh",
     "get_indexing",
+    "get_interpolator",
     "get_kernel",
     "get_layering",
     "get_niter_lic",
@@ -23,7 +24,13 @@ from lick._image_processing import (
     MixMulDict,
     NorthWestLightSource,
 )
-from lick._interpolation import Grid, Mesh
+from lick._interpolation import (
+    Grid,
+    Interpolator,
+    Mesh,
+    RegularGridInterpolator,
+    UnstruscturedGridInterpolator,
+)
 from lick._typing import D, F, FArray, FArray1D, FArray2D
 
 if sys.version_info >= (3, 11):
@@ -250,6 +257,34 @@ def get_mesh(
                     stacklevel=3,
                 )
             return grid_or_mesh
+        case _ as unreachable:
+            assert_never(unreachable)
+
+
+def get_interpolator(
+    input_grid_or_mesh: Grid | Mesh,
+    *,
+    target_mesh: Mesh,
+    indexing: Literal["xy", "ij"] | UnsetType,
+) -> Interpolator:
+    match input_grid_or_mesh:
+        case Mesh() as m:
+            return UnstruscturedGridInterpolator(
+                input_mesh=m,
+                target_mesh=target_mesh,
+            )
+        case Grid() as g if indexing == "xy" and g.is_mono_increasing():
+            return RegularGridInterpolator(
+                input_grid=g,
+                target_mesh=target_mesh,
+            )
+        case Grid() as g:
+            indexing = get_indexing(indexing)
+            return get_interpolator(
+                Mesh.from_grid(g, indexing=indexing),
+                target_mesh=target_mesh,
+                indexing=UNSET,
+            )
         case _ as unreachable:
             assert_never(unreachable)
 

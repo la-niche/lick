@@ -18,7 +18,7 @@ from lick._image_processing import (
     ImageProcessor,
     MixMulDict,
 )
-from lick._interpolation import Grid, Interpolator, Interval, Mesh, Method
+from lick._interpolation import Grid, Interval, Mesh, Method
 from lick._typing import D, F, FArray, FArray1D, FArray2D
 
 if sys.version_info >= (3, 11):
@@ -57,7 +57,7 @@ def interpol(
 ) -> InterpolationResults[F]:
     if len(all_dtypes := {_.dtype for _ in (x, y, v1, v2, field)}) > 1:
         raise TypeError(f"Received inputs with mixed datatypes ({all_dtypes})")
-    input_mesh = _api.get_mesh(x, y, indexing=indexing)
+    input_grid_or_mesh = _api.get_grid_or_mesh(x, y)  # type: ignore[arg-type]
 
     target_grid = Grid.from_intervals(
         x=Interval(
@@ -72,9 +72,9 @@ def interpol(
         dtype=cast(F, x.dtype),
     )
 
-    interpolate = Interpolator(
-        input_mesh=input_mesh,
-        target_mesh=Mesh.from_grid(target_grid, indexing="xy"),
+    target_mesh = Mesh.from_grid(target_grid, indexing="xy")
+    interpolate = _api.get_interpolator(
+        input_grid_or_mesh, target_mesh=target_mesh, indexing=indexing
     )
 
     return InterpolationResults(
