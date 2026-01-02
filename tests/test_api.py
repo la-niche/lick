@@ -212,6 +212,22 @@ def test_get_grid_or_mesh_mesh():
     assert type(res) is Mesh
 
 
+def test_get_mesh_from_grid():
+    _api.get_mesh(
+        np.linspace(-1.0, 1.0, 8),
+        np.linspace(-1.0, 1.0, 8),
+        indexing="ij",
+    )
+
+
+def test_get_mesh_no_indexing():
+    _api.get_mesh(
+        np.atleast_2d(np.linspace(-1.0, 1.0, 8)),
+        np.atleast_2d(np.linspace(-1.0, 1.0, 8)),
+        indexing=_api.UNSET,
+    )
+
+
 def test_get_mesh_ignored_indexing():
     with pytest.warns(
         UserWarning,

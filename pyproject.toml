@@ -26,6 +26,7 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
+    "interpn>=0.8.2",
     "matplotlib>=3.5.0",
     "numpy>=1.22, <3",
     "rlic>=0.2.1",

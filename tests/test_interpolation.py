@@ -1,12 +1,18 @@
 import re
-from itertools import permutations
+from itertools import permutations, product
 
 import numpy as np
 import numpy.testing as npt
 import pytest
 
 from lick import interpol
-from lick._interpolation import Grid, Interpolator, Interval, Mesh
+from lick._interpolation import (
+    Grid,
+    Interval,
+    Mesh,
+    RegularGridInterpolator,
+    UnstruscturedGridInterpolator,
+)
 
 f64 = np.float64
 
@@ -223,52 +229,63 @@ def test_mesh_from_grid(dtype, indexing):
 
 @pytest.mark.parametrize("dtype", ["float32", "float64"])
 @pytest.mark.parametrize("indexing", ["xy", "ij"])
-def test_interpolator_dunder_call(subtests, dtype, indexing):
+def test_unstructured_grid_interpolator_dunder_call(subtests, dtype, indexing):
     x = np.geomspace(1, 2, 5, dtype=dtype)
     y = np.linspace(3, 4, 7, dtype=dtype)
     grid = Grid(x=x, y=y)
     mesh = Mesh.from_grid(grid, indexing=indexing)
 
-    interpolator = Interpolator(input_mesh=mesh, target_mesh=mesh)
-    for method in ["nearest", "linear", "cubic"]:
-        with subtests.test(method=method):
+    for interpolator, method in product(
+        [
+            RegularGridInterpolator(input_grid=grid, target_mesh=mesh),
+            UnstruscturedGridInterpolator(input_mesh=mesh, target_mesh=mesh),
+        ],
+        ["nearest", "linear", "cubic"],
+    ):
+        if type(interpolator) is RegularGridInterpolator and indexing == "ij":
+            continue
+        with subtests.test(type=type(interpolator).__name__, method=method):
             res = interpolator(mesh.x, method=method)
-            npt.assert_array_almost_equal_nulp(res, mesh.x)
+            npt.assert_array_almost_equal(res, mesh.x)
 
 
 @pytest.mark.parametrize("dt1, dt2", permutations(["float32", "float64"]))
-def test_interpolator_dunder_call_mixed_dtype(subtests, dt1, dt2):
+def test_unstructured_grid_interpolator_dunder_call_mixed_dtype(subtests, dt1, dt2):
     x = np.geomspace(1, 2, 5, dtype=dt1)
     y = np.linspace(3, 4, 7, dtype=dt1)
     grid = Grid(x=x, y=y)
     mesh = Mesh.from_grid(grid, indexing="ij")
-    shape = mesh.shape
 
-    interpolator = Interpolator(input_mesh=mesh, target_mesh=mesh)
-    with (
-        subtests.test(vals_dtype=dt2),
-        pytest.raises(
-            TypeError,
-            match=re.escape(
-                f"Expected values to match the input mesh's data type ({mesh.dtype}) "
-                f"and shape {mesh.shape}. "
-                f"Received values with dtype={dt2!s}, shape={shape}"
+    grid_interpolator = RegularGridInterpolator(input_grid=grid, target_mesh=mesh)
+    mesh_interpolator = UnstruscturedGridInterpolator(input_mesh=mesh, target_mesh=mesh)
+    for interpolator, obj, obj_shape, obj_name in [
+        (grid_interpolator, grid, (grid.y.size, grid.x.size), "grid"),
+        (mesh_interpolator, mesh, mesh.shape, "mesh"),
+    ]:
+        with (
+            subtests.test(obj_name=obj_name, vals_dtype=dt2),
+            pytest.raises(
+                TypeError,
+                match=re.escape(
+                    f"Expected values to match the input data type ({obj.dtype}) "
+                    f"and shape {obj_shape}. "
+                    f"Received values with dtype={dt2!s}, shape={obj.x.shape}"
+                ),
             ),
-        ),
-    ):
-        interpolator(mesh.x.astype(dt2), method="nearest")
+        ):
+            interpolator(obj.x.astype(dt2), method="nearest")
 
-    with (
-        subtests.test(vals_dtype=dt1),
-        pytest.raises(
-            TypeError,
-            match=(
-                r"input and target meshes must use the same data type\. "
-                rf"Got input_mesh.dtype={dt1!s}, target_mesh\.dtype={dt2!s}"
+        with (
+            subtests.test(input="mesh", vals_dtype=dt1),
+            pytest.raises(
+                TypeError,
+                match=(
+                    r"input and target must use the same data type\. "
+                    rf"Got input_{obj_name}.dtype={dt1!s}, target_mesh\.dtype={dt2!s}"
+                ),
             ),
-        ),
-    ):
-        Interpolator(input_mesh=mesh, target_mesh=mesh.astype(dt2))
+        ):
+            type(interpolator)(obj.x, target_mesh=mesh.astype(dt2))
 
 
 @pytest.mark.parametrize("dtype", ["float32", "float64"])
