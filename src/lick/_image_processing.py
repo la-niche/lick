@@ -76,20 +76,9 @@ class HistogramEqualizer:
         .. [2] https://en.wikipedia.org/wiki/Histogram_equalization
 
         """
-        import numpy as np
+        import rlic
 
-        hist, bin_edges = np.histogram(image.ravel(), bins=self.nbins)
-        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2.0
-
-        cdf = hist.cumsum()
-        cdf = cdf / float(cdf[-1])
-
-        cdf = cdf.astype(image.dtype, copy=False)
-        out = np.interp(image.flat, bin_centers, cdf)
-        out = out.reshape(image.shape)
-        # Unfortunately, np.interp currently always promotes to float64, so we
-        # have to cast back to single precision when float32 output is desired
-        return out.astype(image.dtype, copy=False)  # type: ignore[no-any-return]
+        return rlic.equalize_histogram(image, nbins=self.nbins)
 
 
 class LayeringMode(Enum):

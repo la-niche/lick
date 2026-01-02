@@ -138,3 +138,6 @@ build-constraint-dependencies = [
     # via matplotlib 3.5
     "setuptools>=61.0.0",
 ]
+
+[tool.uv.sources]
+rlic = { git = "https://github.com/neutrinoceros/rlic" }
