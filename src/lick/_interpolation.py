@@ -6,9 +6,9 @@ __all__ = [
     "Method",
 ]
 
-from dataclasses import dataclass
+from dataclasses import KW_ONLY, dataclass
 from math import isfinite
-from typing import Generic, Literal, TypeAlias, final
+from typing import Generic, Literal, Protocol, TypeAlias, final
 
 import numpy as np
 
@@ -97,6 +97,9 @@ class Grid(Generic[F]):
     def dtype(self) -> np.dtype[F]:
         return self.x.dtype
 
+    def is_mono_increasing(self) -> bool:
+        return bool(np.all(np.diff(self.x) > 0.0) and np.all(np.diff(self.y) > 0.0))
+
 
 @final
 @dataclass(kw_only=True, slots=True, frozen=True)
@@ -136,16 +139,17 @@ class Mesh(Generic[F]):
 
 
 @final
-@dataclass(kw_only=True, slots=True, frozen=True)
-class Interpolator(Generic[F]):
+@dataclass(slots=True, frozen=True)
+class UnstruscturedGridInterpolator(Generic[F]):
     input_mesh: Mesh[F]
+    _: KW_ONLY
     target_mesh: Mesh[F]
 
     def __post_init__(self):
         if self.target_mesh.dtype == self.input_mesh.dtype:
             return
         raise TypeError(
-            "input and target meshes must use the same data type. "
+            "input and target must use the same data type. "
             f"Got input_mesh.dtype={self.input_mesh.dtype!s}, target_mesh.dtype={self.target_mesh.dtype!s}"
         )
 
@@ -158,7 +162,7 @@ class Interpolator(Generic[F]):
     ) -> FArray2D[F]:
         if vals.dtype != self.input_mesh.dtype or vals.shape != self.input_mesh.shape:
             raise TypeError(
-                f"Expected values to match the input mesh's data type ({self.input_mesh.dtype}) "
+                f"Expected values to match the input data type ({self.input_mesh.dtype}) "
                 f"and shape {self.input_mesh.shape}. "
                 f"Received values with dtype={vals.dtype!s}, shape={vals.shape}"
             )
@@ -176,3 +180,51 @@ class Interpolator(Generic[F]):
             ),
             method=method,
         ).astype(vals.dtype)
+
+
+class Interpolator(Protocol, Generic[F]):
+    def __call__(self, vals: FArray2D[F], /, *, method: Method) -> FArray2D[F]: ...
+
+
+@final
+@dataclass(slots=True, frozen=True)
+class RegularGridInterpolator(Generic[F]):
+    input_grid: Grid[F]
+    _: KW_ONLY
+    target_mesh: Mesh[F]
+
+    def __post_init__(self):
+        if self.target_mesh.dtype == self.input_grid.dtype:
+            return
+        raise TypeError(
+            "input and target must use the same data type. "
+            f"Got input_grid.dtype={self.input_grid.dtype!s}, target_mesh.dtype={self.target_mesh.dtype!s}"
+        )
+
+    def __call__(
+        self,
+        vals: FArray2D[F],
+        /,
+        *,
+        method: Method,
+    ) -> FArray2D[F]:
+        if (
+            vals.shape
+            != (input_shape := (self.input_grid.y.size, self.input_grid.x.size))
+            or vals.dtype != self.input_grid.dtype
+        ):
+            raise TypeError(
+                f"Expected values to match the input data type ({self.input_grid.dtype}) "
+                f"and shape {input_shape}. "
+                f"Received values with dtype={vals.dtype!s}, shape={vals.shape}"
+            )
+        from interpn import interpn
+
+        # TODO: disable extrapolation for backward compat
+        # upstream patch required
+        return interpn(
+            grids=(self.input_grid.y, self.input_grid.x),
+            obs=(self.target_mesh.y, self.target_mesh.x),
+            vals=vals,
+            method=method,
+        )
