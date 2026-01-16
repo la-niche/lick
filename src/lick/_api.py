@@ -115,9 +115,6 @@ MUTUALLY_EXCLUSIVE_KW_MSG = "{kw} and {alt_kw} keyword arguments are mutually ex
 
 def get_niter_lic(niter_lic: int | UnsetType) -> int:
     if niter_lic is UNSET:
-        warn_legacy_default_used(
-            kw="niter_lic", legacy_default=LegacyDefault.NITER_LIC, future_default=1
-        )
         return LegacyDefault.NITER_LIC.value
     else:
         return niter_lic

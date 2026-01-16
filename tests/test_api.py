@@ -109,17 +109,7 @@ def test_get_kernel_auto_large(max_auto_size, dtype):
 
 
 def test_get_niter_lic_default():
-    with pytest.warns(
-        DeprecationWarning,
-        match=(
-            r"^The niter_lic argument was not explicitly specified. "
-            r"Its default value will change from 5 to 1 in a future release.\n"
-            r"To silence this warning, set the argument explicitly\.$"
-        ),
-    ):
-        n = _api.get_niter_lic(_api.UNSET)
-
-    assert n == _api.LegacyDefault.NITER_LIC.value
+    assert _api.get_niter_lic(_api.UNSET) == _api.LegacyDefault.NITER_LIC.value
 
 
 @pytest.mark.parametrize("niter", [1, 2, 10])
