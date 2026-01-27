@@ -55,7 +55,11 @@ class HistogramEqualizer:
     def process(self, image: FArray2D[F]) -> FArray2D[F]:
         import ahe
 
-        return ahe.equalize_histogram(image, nbins=self.nbins)
+        return ahe.equalize_histogram(
+            image,
+            nbins=self.nbins,
+            adaptive_strategy={"kind": "tile-interpolation", "tile-into": 8},
+        )
 
 
 class LayeringMode(Enum):
