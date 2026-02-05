@@ -74,6 +74,9 @@ select = [
 combine-as-imports = true
 known-first-party = ["lick"]
 
+[tool.ty.rules]
+unused-type-ignore-comment = "ignore"
+
 [tool.mypy]
 python_version = "3.10"
 ignore_missing_imports = true # mpl_toolkits doesn't have stubs yet
