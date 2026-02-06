@@ -53,43 +53,9 @@ class HistogramEqualizer:
     nbins: int
 
     def process(self, image: FArray2D[F]) -> FArray2D[F]:
-        # adapted from scikit-image
-        """Return image after histogram equalization.
+        import ahe
 
-        Parameters
-        ----------
-        image : array
-            Image array.
-
-        Returns
-        -------
-        out : float array
-            Image array after histogram equalization.
-
-        Notes
-        -----
-        This function is adapted from [1]_ with the author's permission.
-
-        References
-        ----------
-        .. [1] http://www.janeriksolem.net/histogram-equalization-with-python-and.html
-        .. [2] https://en.wikipedia.org/wiki/Histogram_equalization
-
-        """
-        import numpy as np
-
-        hist, bin_edges = np.histogram(image.ravel(), bins=self.nbins)
-        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2.0
-
-        cdf = hist.cumsum()
-        cdf = cdf / float(cdf[-1])
-
-        cdf = cdf.astype(image.dtype, copy=False)
-        out = np.interp(image.flat, bin_centers, cdf)
-        out = out.reshape(image.shape)
-        # Unfortunately, np.interp currently always promotes to float64, so we
-        # have to cast back to single precision when float32 output is desired
-        return out.astype(image.dtype, copy=False)  # type: ignore[no-any-return]
+        return ahe.equalize_histogram(image, nbins=self.nbins)
 
 
 class LayeringMode(Enum):
