@@ -236,7 +236,7 @@ def get_grid_or_mesh(x: FArray[D, F], y: FArray[D, F]) -> Grid[F] | Mesh[F]:
 
 
 def get_mesh(
-    x: FArray[D, F], y: FArray[D, F], indexing=Literal["xy", "ij"] | UnsetType
+    x: FArray[D, F], y: FArray[D, F], indexing: Literal["xy", "ij"] | UnsetType
 ) -> Mesh[F]:
     match grid_or_mesh := get_grid_or_mesh(x, y):  # type: ignore[arg-type]
         case Grid():
