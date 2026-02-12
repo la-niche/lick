@@ -49,7 +49,7 @@ class Interval:
     def span(self) -> float:
         return self.max - self.min
 
-    def as_evenly_spaced_array(self, size: int, *, dtype: F) -> FArray1D[F]:
+    def as_evenly_spaced_array(self, size: int, *, dtype: np.dtype[F]) -> FArray1D[F]:
         return np.linspace(self.min, self.max, size, dtype=dtype)
 
 
@@ -76,7 +76,7 @@ class Grid(Generic[F]):
         x: Interval,
         y: Interval,
         small_dim_npoints: int,
-        dtype: F,
+        dtype: np.dtype[F],
     ) -> "Grid[F]":
         s = small_dim_npoints
         if s < 2:
@@ -131,7 +131,7 @@ class Mesh(Generic[F]):
     def shape(self) -> tuple[int, int]:
         return self.x.shape
 
-    def astype(self, dtype: F, /) -> "Mesh[F]":
+    def astype(self, dtype: np.dtype[F], /) -> "Mesh[F]":
         return Mesh(x=self.x.astype(dtype), y=self.y.astype(dtype))
 
 
