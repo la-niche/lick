@@ -6,7 +6,7 @@ __all__ = [
 ]
 import sys
 from functools import partial
-from typing import TYPE_CHECKING, Generic, Literal, cast
+from typing import TYPE_CHECKING, Generic, Literal
 
 import numpy as np
 import rlic
@@ -69,7 +69,7 @@ def interpol(
             max=float(y.max()),
         ).with_overrides(min=ymin, max=ymax),
         small_dim_npoints=size_interpolated,
-        dtype=cast(F, x.dtype),
+        dtype=x.dtype,
     )
 
     interpolate = Interpolator(
