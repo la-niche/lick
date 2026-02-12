@@ -107,7 +107,7 @@ def lick(
         kernel,
         size=kernel_length,
         max_auto_size=min(*v1.shape, *v2.shape),
-        dtype=v1.dtype,  # type: ignore[arg-type]
+        dtype=v1.dtype,
     )
     post_lic = _api.get_post_lic(post_lic, light_source=light_source)
 
@@ -164,7 +164,7 @@ def lick_box(
         kernel,
         size=kernel_length,
         max_auto_size=size_interpolated,
-        dtype=v1.dtype,  # type: ignore[arg-type]
+        dtype=v1.dtype,
     )
     post_lic = _api.get_post_lic(post_lic, light_source=light_source)
 
@@ -239,7 +239,7 @@ def lick_box_plot(
         kernel,
         size=kernel_length,
         max_auto_size=size_interpolated,
-        dtype=v1.dtype,  # type: ignore[arg-type]
+        dtype=v1.dtype,
     )
     post_lic = _api.get_post_lic(post_lic, light_source=light_source)
     resolved_layering = _api.get_layering(
