@@ -14,6 +14,8 @@ import warnings
 from enum import Enum, auto
 from typing import Any, Literal, overload
 
+import numpy as np
+
 from lick._image_processing import (
     AlphaDict,
     Identity,
@@ -125,7 +127,7 @@ def get_kernel(
     *,
     size: int | UnsetType,
     max_auto_size: int,
-    dtype: F,
+    dtype: np.dtype[F],
 ) -> FArray1D[F]:
     import numpy as np
 
