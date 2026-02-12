@@ -160,11 +160,14 @@ def lick_box(
         raise TypeError(f"Received inputs with mixed datatypes ({all_dtypes})")
     grid_or_mesh = _api.get_grid_or_mesh(x, y)  # type: ignore[arg-type]
     niter_lic = _api.get_niter_lic(niter_lic)
-    kernel = _api.get_kernel(
-        kernel,
-        size=kernel_length,
-        max_auto_size=size_interpolated,
-        dtype=v1.dtype,  # type: ignore[arg-type]
+    kernel = cast(
+        FArray1D[F],
+        _api.get_kernel(
+            kernel,
+            size=kernel_length,
+            max_auto_size=size_interpolated,
+            dtype=v1.dtype,  # type: ignore[arg-type]
+        ),
     )
     post_lic = _api.get_post_lic(post_lic, light_source=light_source)
 
