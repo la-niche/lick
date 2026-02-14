@@ -81,11 +81,10 @@ unused-type-ignore-comment = "ignore"
 
 [tool.mypy]
 python_version = "3.10"
+strict = true
 ignore_missing_imports = true # mpl_toolkits doesn't have stubs yet
 show_error_codes = true
 pretty = true
-warn_return_any = true
-warn_unused_configs = true
 warn_unreachable = true
 
 [tool.pytest]

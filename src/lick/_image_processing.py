@@ -45,7 +45,7 @@ class NorthWestLightSource:
         from matplotlib.colors import LightSource
 
         ls = LightSource(azdeg=0.0, altdeg=45.0)
-        return ls.hillshade(image, vert_exag=5).astype(image.dtype, copy=False)  # type: ignore[no-any-return]
+        return ls.hillshade(image, vert_exag=5).astype(image.dtype, copy=False)
 
 
 @dataclass(kw_only=True, slots=True, frozen=True)
@@ -72,7 +72,7 @@ class Layering:
     mode: LayeringMode
     alpha: float | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         match self.mode, self.alpha:
             case LayeringMode.ALPHA, None:
                 raise TypeError(
@@ -87,7 +87,9 @@ class Layering:
             case LayeringMode.MIX_MUL, _:
                 raise TypeError("mode=LayeringMode.MIX_MUL requires alpha=None")
             case _ as unreachable:
-                assert_never(unreachable)
+                # mypy (as of 1.19.1) does not narrow this properly
+                # and still infers tuple[Literal[LayeringMode.ALPHA], float | None] here
+                assert_never(unreachable) # type: ignore[arg-type]
 
     @classmethod
     def from_dict(cls, d: AlphaDict | MixMulDict, /) -> "Layering":

@@ -23,7 +23,7 @@ class Interval:
     min: float
     max: float
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not (isfinite(self.min) and isfinite(self.max)):
             msg = "max and min must both be finite"
         elif self.max <= self.min:
@@ -59,7 +59,7 @@ class Grid(Generic[F]):
     x: FArray1D[F]
     y: FArray1D[F]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.y.dtype == self.x.dtype and self.y.ndim == self.x.ndim == 1:
             return
 
@@ -104,7 +104,7 @@ class Mesh(Generic[F]):
     x: FArray2D[F]
     y: FArray2D[F]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if (
             self.y.dtype == self.x.dtype
             and self.y.ndim == self.x.ndim == 2
@@ -141,7 +141,7 @@ class Interpolator(Generic[F]):
     input_mesh: Mesh[F]
     target_mesh: Mesh[F]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.target_mesh.dtype == self.input_mesh.dtype:
             return
         raise TypeError(
@@ -164,7 +164,7 @@ class Interpolator(Generic[F]):
             )
         from scipy.interpolate import griddata
 
-        return griddata(  # type: ignore[no-any-return]
+        return griddata(
             points=(
                 self.input_mesh.x.flat,
                 self.input_mesh.y.flat,
