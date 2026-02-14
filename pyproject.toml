@@ -52,6 +52,7 @@ test = [
 ]
 typecheck = [
     "mypy>=1.15.0",
+    "scipy-stubs>=1.15.3.0",
 ]
 
 [tool.flit.sdist]
