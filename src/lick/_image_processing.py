@@ -89,7 +89,7 @@ class Layering:
             case _ as unreachable:
                 # mypy (as of 1.19.1) does not narrow this properly
                 # and still infers tuple[Literal[LayeringMode.ALPHA], float | None] here
-                assert_never(unreachable) # type: ignore[arg-type]
+                assert_never(unreachable)  # type: ignore[arg-type]
 
     @classmethod
     def from_dict(cls, d: AlphaDict | MixMulDict, /) -> "Layering":
