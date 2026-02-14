@@ -6,6 +6,7 @@ __all__ = [
     "get_niter_lic",
     "get_mesh",
     "get_post_lic",
+    "LayeringMode",
     "UNSET",
     "UnsetType",
 ]
@@ -167,7 +168,7 @@ def get_kernel(
         case _ as unreachable:
             assert_never(unreachable)
 
-    return kernel_base.astype(dtype, copy=False)  # type: ignore[no-any-return]
+    return kernel_base.astype(dtype, copy=False)
 
 
 def get_post_lic(
@@ -238,7 +239,7 @@ def get_grid_or_mesh(x: FArray[D, F], y: FArray[D, F]) -> Grid[F] | Mesh[F]:
 def get_mesh(
     x: FArray[D, F], y: FArray[D, F], indexing: Literal["xy", "ij"] | UnsetType
 ) -> Mesh[F]:
-    match grid_or_mesh := get_grid_or_mesh(x, y):  # type: ignore[arg-type]
+    match grid_or_mesh := get_grid_or_mesh(x, y):
         case Grid():
             indexing = get_indexing(indexing)
             return Mesh.from_grid(grid_or_mesh, indexing=indexing)

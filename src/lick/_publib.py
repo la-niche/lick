@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 __all__ = [
     "interpol",
     "lick",
@@ -28,6 +30,7 @@ else:
 
 if TYPE_CHECKING:
     from matplotlib.axes import Axes
+    from matplotlib.colors import Colormap
     from matplotlib.figure import Figure
 
 
@@ -158,7 +161,7 @@ def lick_box(
 ) -> LickBoxResults[F]:
     if len(all_dtypes := {_.dtype for _ in (x, y, v1, v2, field)}) > 1:
         raise TypeError(f"Received inputs with mixed datatypes ({all_dtypes})")
-    grid_or_mesh = _api.get_grid_or_mesh(x, y)  # type: ignore[arg-type]
+    grid_or_mesh = _api.get_grid_or_mesh(x, y)
     niter_lic = _api.get_niter_lic(niter_lic)
     kernel = _api.get_kernel(
         kernel,
@@ -195,8 +198,8 @@ def lick_box(
 
 
 def lick_box_plot(
-    fig: "Figure",
-    ax: "Axes",
+    fig: Figure,
+    ax: Axes,
     x: FArray[D, F],
     y: FArray[D, F],
     v1: FArray2D[F],
@@ -222,9 +225,9 @@ def lick_box_plot(
     | _api.UnsetType = _api.UNSET,
     light_source: bool | _api.UnsetType = _api.UNSET,
     log: bool = False,
-    cmap=None,
+    cmap: str | Colormap | None = None,
     color_stream: str = "white",
-    cmap_stream=None,
+    cmap_stream: str | Colormap | None = None,
     stream_density: float = 0,
     alpha_transparency: bool | _api.UnsetType = _api.UNSET,
     alpha: float | _api.UnsetType = _api.UNSET,
@@ -233,7 +236,7 @@ def lick_box_plot(
 ) -> LickBoxResults[F]:
     if len(all_dtypes := {_.dtype for _ in (x, y, v1, v2, field)}) > 1:
         raise TypeError(f"Received inputs with mixed datatypes ({all_dtypes})")
-    grid_or_mesh = _api.get_grid_or_mesh(x, y)  # type: ignore[arg-type]
+    grid_or_mesh = _api.get_grid_or_mesh(x, y)
     niter_lic = _api.get_niter_lic(niter_lic)
     kernel = _api.get_kernel(
         kernel,
@@ -278,12 +281,12 @@ def lick_box_plot(
     )
     match resolved_layering.mode:
         case _api.LayeringMode.ALPHA:
-            im = pcolormesh(new_field, **im_kwargs)
+            im = pcolormesh(new_field, **im_kwargs)  # type: ignore[arg-type]
             pcolormesh(lbr.licv, cmap="gray", alpha=resolved_layering.alpha)
         case _api.LayeringMode.MIX_MUL:
             datalicv = lbr.licv * lbr.field
             datalicv = np.log10(datalicv) if log else datalicv
-            im = pcolormesh(datalicv, **im_kwargs)
+            im = pcolormesh(datalicv, **im_kwargs)  # type: ignore[arg-type]
         case _ as unreachable:
             assert_never(unreachable)
 
