@@ -37,7 +37,7 @@ def test_north_west_list_source(dtype):
         (256, 50.0),
     ],
 )
-def test_historgram_equalization(nbins, min_rms_reduction):
+def test_histogram_equalization(nbins, min_rms_reduction):
     # histogram equalization produces a new image whose cumulative
     # distribution function (cdf) should be close(r) to a straight line
     # (i.e., approaching a flat intensity distribution)
