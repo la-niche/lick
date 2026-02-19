@@ -27,7 +27,7 @@ def test_get_kernel_length_depr():
         DeprecationWarning,
         match=(
             r"^The kernel_length keyword argument is deprecated since lick v0\.10\.0 "
-            r"and will be removed in a future version. Use the kernel argument instead\.$"
+            r"and might be removed in a future version. Use the kernel argument instead\.$"
         ),
     ):
         kernel = _api.get_kernel(
@@ -154,7 +154,7 @@ def test_get_post_lic_light_source_bool(light_source_bool, cls):
         DeprecationWarning,
         match=(
             r"^The light_source keyword argument is deprecated since lick v0\.10\.0 "
-            r"and will be removed in a future version\. Use the post_lic argument instead\.$"
+            r"and might be removed in a future version\. Use the post_lic argument instead\.$"
         ),
     ):
         post_lic = _api.get_post_lic(_api.UNSET, light_source=light_source_bool)
@@ -276,7 +276,7 @@ def test_get_layering_from_alpha(alpha):
         DeprecationWarning,
         match=(
             r"^The alpha keyword argument is deprecated since lick v0\.10\.0 "
-            r"and will be removed in a future version\. Use the layering argument instead\.$"
+            r"and might be removed in a future version\. Use the layering argument instead\.$"
         ),
     ):
         layering = _api.get_layering(
@@ -302,7 +302,7 @@ def test_get_layering_from_alpha_transparency(transparency, expected):
         DeprecationWarning,
         match=(
             r"^The alpha_transparency keyword argument is deprecated since lick v0\.10\.0 "
-            r"and will be removed in a future version\. Use the layering argument instead\.$"
+            r"and might be removed in a future version\. Use the layering argument instead\.$"
         ),
     ):
         layering = _api.get_layering(
