@@ -100,7 +100,7 @@ def warn_legacy_value_used(kw: str, *, legacy_value: Any, alt: str) -> None:
 
 LEGACY_KW_USED_MSG = (
     "The {kw} keyword argument is deprecated since lick v{since_version} "
-    "and will be removed in a future version. Use the {alt_kw} argument instead."
+    "and might be removed in a future version. Use the {alt_kw} argument instead."
 )
 
 
