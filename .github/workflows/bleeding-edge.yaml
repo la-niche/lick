@@ -2,6 +2,8 @@ name: CI (bleeding edge)
 # goals: check stability against
 # - dev version of numpy, matplotlib and scipy
 
+permissions: {}
+
 on:
   push:
     branches:
