@@ -1,7 +1,6 @@
 # lick
 [![PyPI](https://img.shields.io/pypi/v/lick.svg?logo=pypi&logoColor=white&label=PyPI)](https://pypi.org/project/lick/)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/la-niche/lick/main.svg)](https://results.pre-commit.ci/latest/github/la-niche/lick/main)
-[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v2.json)](https://github.com/charliermarsh/ruff)
 
 
 Line Integral Convolution Knit : clothe a 2D field (ex: density field) with a LIC texture,
