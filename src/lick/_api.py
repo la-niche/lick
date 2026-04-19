@@ -239,17 +239,17 @@ def get_grid_or_mesh(x: FArray[D, F], y: FArray[D, F]) -> Grid[F] | Mesh[F]:
 def get_mesh(
     x: FArray[D, F], y: FArray[D, F], indexing: Literal["xy", "ij"] | UnsetType
 ) -> Mesh[F]:
-    match grid_or_mesh := get_grid_or_mesh(x, y):
-        case Grid():
+    match get_grid_or_mesh(x, y):
+        case Grid() as grid:
             indexing = get_indexing(indexing)
-            return Mesh.from_grid(grid_or_mesh, indexing=indexing)
-        case Mesh():
+            return Mesh.from_grid(grid, indexing=indexing)
+        case Mesh() as mesh:
             if indexing is not UNSET:
                 warnings.warn(
                     f"{indexing=!r} will be ignored because a mesh is already defined",
                     stacklevel=3,
                 )
-            return grid_or_mesh
+            return mesh
         case _ as unreachable:
             assert_never(unreachable)
 
