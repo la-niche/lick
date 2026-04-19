@@ -60,6 +60,7 @@ def interpol(
 ) -> InterpolationResults[F]:
     if len(all_dtypes := {_.dtype for _ in (x, y, v1, v2, field)}) > 1:
         raise TypeError(f"Received inputs with mixed datatypes ({all_dtypes})")
+    indexing = _api.get_indexing(indexing)
     input_mesh = _api.get_mesh(x, y, indexing=indexing)
 
     target_grid = Grid.from_intervals(
