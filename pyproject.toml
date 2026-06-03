@@ -15,7 +15,6 @@ license-files = ["LICENSE"]
 classifiers = [
     "Framework :: Matplotlib",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -24,14 +23,13 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Visualization",
     "Typing :: Typed",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "ahe>=0.1.0",
-    "matplotlib>=3.5.0",
-    "numpy>=1.22, <3",
+    "matplotlib>=3.6.0",
+    "numpy>=1.23.2, <3",
     "rlic>=0.2.1",
-    "scipy>=1.7.2",
-    "typing-extensions>=4.3.0 ; python_full_version < '3.11'",
+    "scipy>=1.9.2",
 ]
 
 [project.readme]
@@ -44,7 +42,6 @@ Homepage = "https://github.com/la-niche/lick"
 [dependency-groups]
 covcheck = [
     "coverage>=7.10",
-    "coverage[toml]>=7.10.0 ; python_full_version < '3.11'",
 ]
 test = [
     "pytest>=9.0.0",
@@ -80,7 +77,7 @@ known-first-party = ["lick"]
 unused-type-ignore-comment = "ignore"
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"
 strict = true
 ignore_missing_imports = true # mpl_toolkits doesn't have stubs yet
 show_error_codes = true
@@ -126,19 +123,9 @@ no-build-package = [
     "scipy",
 
     # all of the following are from pytest-mpl (directly or not)
-    # these constraints should (mostly) become obsolete with https://github.com/matplotlib/pytest-mpl/pull/252
     "markupsafe",
 ]
 
 constraint-dependencies = [
-    # https://github.com/matplotlib/pytest-mpl/pull/252
-    "jinja2>=2.10.2",
-    # via matplotlib 3.5
-    "setuptools>=61.0.0",
-    "pyparsing>=2.4.0",
-]
-
-build-constraint-dependencies = [
-    # via matplotlib 3.5
-    "setuptools>=61.0.0",
+    "jinja2>=3.1.4",
 ]

@@ -6,17 +6,11 @@ __all__ = [
     "MixMulDict",
     "NorthWestLightSource",
 ]
-import sys
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Literal, Protocol, TypedDict
+from typing import Literal, Protocol, TypedDict, assert_never
 
 from lick._typing import F, FArray2D
-
-if sys.version_info >= (3, 11):
-    from typing import assert_never
-else:
-    from typing_extensions import assert_never
 
 
 class AlphaDict(TypedDict):
