@@ -6,9 +6,8 @@ __all__ = [
     "lick_box",
     "lick_box_plot",
 ]
-import sys
 from functools import partial
-from typing import TYPE_CHECKING, Generic, Literal
+from typing import TYPE_CHECKING, Generic, Literal, NamedTuple, assert_never
 
 import numpy as np
 import rlic
@@ -22,11 +21,6 @@ from lick._image_processing import (
 )
 from lick._interpolation import Grid, Interpolator, Interval, Mesh, Method
 from lick._typing import D, F, FArray, FArray1D, FArray2D
-
-if sys.version_info >= (3, 11):
-    from typing import NamedTuple, assert_never
-else:
-    from typing_extensions import NamedTuple, assert_never
 
 if TYPE_CHECKING:
     from matplotlib.axes import Axes

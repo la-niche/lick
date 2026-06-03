@@ -164,7 +164,7 @@ class Interpolator(Generic[F]):
             )
         from scipy.interpolate import griddata
 
-        return griddata(
+        return griddata(  # type: ignore[return-value]
             points=(
                 self.input_mesh.x.flat,
                 self.input_mesh.y.flat,

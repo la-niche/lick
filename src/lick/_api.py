@@ -10,10 +10,9 @@ __all__ = [
     "UNSET",
     "UnsetType",
 ]
-import sys
 import warnings
 from enum import Enum, auto
-from typing import Any, Literal, overload
+from typing import Any, Literal, assert_never, overload
 
 import numpy as np
 
@@ -28,11 +27,6 @@ from lick._image_processing import (
 )
 from lick._interpolation import Grid, Mesh
 from lick._typing import D, F, FArray, FArray1D, FArray2D
-
-if sys.version_info >= (3, 11):
-    from typing import assert_never
-else:
-    from typing_extensions import assert_never
 
 
 class UnsetType(Enum):
