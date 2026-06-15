@@ -100,7 +100,7 @@ def test_interval_as_evenly_spaced_array(interval, size, dtype):
     npt.assert_almost_equal(np.diff(a, 2), 0.0, decimal=14 if dtype == "float64" else 6)
 
 
-@pytest.mark.parametrize("dtx, dty", permutations(["float32", "float64"]))
+@pytest.mark.parametrize("dtx, dty", list(permutations(["float32", "float64"])))
 def test_grid_mixed_dtype(dtx, dty):
     x = np.geomspace(1, 2, 5, dtype=dtx)
     y = np.linspace(1, 2, 5, dtype=dty)
@@ -236,7 +236,7 @@ def test_interpolator_dunder_call(subtests, dtype, indexing):
             npt.assert_array_almost_equal_nulp(res, mesh.x)
 
 
-@pytest.mark.parametrize("dt1, dt2", permutations(["float32", "float64"]))
+@pytest.mark.parametrize("dt1, dt2", list(permutations(["float32", "float64"])))
 def test_interpolator_dunder_call_mixed_dtype(subtests, dt1, dt2):
     x = np.geomspace(1, 2, 5, dtype=dt1)
     y = np.linspace(3, 4, 7, dtype=dt1)
