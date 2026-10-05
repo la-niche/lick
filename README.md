@@ -46,7 +46,7 @@ y = np.geomspace(0.1, 5, 128)
 a, b = np.meshgrid(x, y)
 v1 = np.cos(a)
 v2 = np.sin(b)
-field = v1 ** 2 + v2 ** 2
+field = v1**2 + v2**2
 lick_box_plot(
     fig,
     ax,
